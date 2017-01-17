@@ -4,12 +4,11 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 library(randomForest)
-library(mice)
 library(ggthemes)
 library(plotly)
 
 #set working directory
-setwd('')
+setwd('/users/thesmithfamily/desktop/coursera/ames')
 
 #read in data and create full dataset
 train <- read.csv("train.csv")
@@ -20,7 +19,7 @@ full <- bind_rows(train, test)
 attach(full)
 
 #create new variable that calculates entire house square footage and ignores missing data 
-full$TotalSFnewAgain = rowSums(cbind(full$TotalBsmtSF, full$X1stFlrSF, full$X2ndFlrSF), na.rm=TRUE)
+full$TotalSF = rowSums(cbind(full$TotalBsmtSF, full$X1stFlrSF, full$X2ndFlrSF), na.rm=TRUE)
 
 
 #create dummy variables
@@ -83,7 +82,7 @@ full$KitchenQualDummy <- ifelse(KitchenQual == "Ex", 1, full$KitchenQualDummy <-
 full[c("KitchenQualDummy")][is.na(full[c("KitchenQualDummy")])] <- 0
 full$KitchenQualDummy <- as.factor(full$KitchenQualDummy)
 
-#GarageCars (1 missing) - include - recode missing to median?
+#GarageCars - recode missing to 0
 full[c("GarageCars")][is.na(full[c("GarageCars")])] <- 0
 
 #PavedDrive - dummy for Y/PandN
@@ -99,34 +98,31 @@ full$HouseStyle <- as.factor(full$HouseStyle)
 full$TotalBsmtSF = rowSums(cbind(full$BsmtFinSF1, full$BsmtFinSF2, full$BsmtUnfSF), na.rm=TRUE)
 
 #Separate data back into train and test sets
-train <- full[1:1460,]
-test <- full[1461:2919,]
+train <- full[1:nrow(train),]
+test <- full[(nrow(train)+1):nrow(full),]
 
 #create train2 and test2 with only included variables from train and test (myvars)
-myvars <- c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSFnewAgain","SalePrice")
+myvars <- c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF","SalePrice")
 train2 <- train[myvars]
-test2 <- test[c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSFnewAgain")]
+test2 <- test[c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF")]
 
 
 #Run the random forest algorithm
-rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + LotFrontage + Street + LandContourDummy + LandContour  + LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSFnewAgain, data=train2)
+rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + LotFrontage + Street + LandContourDummy + LandContour  + LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSF, data=train2)
 
 
 #get importance
 importance <- importance(rf_model)
-varImportance <- data.frame(Variables = row.names(importance), 
-                            Importance = round(importance[ ,'MeanDecreaseGini'],2))
+varImportance <- data.frame(Variables = row.names(importance), Importance = round(importance[ ,'MeanDecreaseGini'],2))
 
 # Create a rank variable based on importance
 rankImportance <- varImportance %>%
   mutate(Rank = paste0('#',dense_rank(desc(Importance))))
 
 # Use ggplot2 to visualize the relative importance of variables
-ggplot(rankImportance, aes(x = reorder(Variables, Importance), 
-                           y = Importance, fill = Importance)) +
+ggplot(rankImportance, aes(x = reorder(Variables, Importance), y = Importance, fill = Importance)) +
   geom_bar(stat='identity') + 
-  geom_text(aes(x = Variables, y = 0.5, label = Rank),
-            hjust=0, vjust=0.55, size = 4, colour = 'red') +
+  geom_text(aes(x = Variables, y = 0.5, label = Rank), hjust=0, vjust=0.55, size = 4, colour = 'red') +
   labs(x = 'Variables') +
   coord_flip() + 
   theme_few()
