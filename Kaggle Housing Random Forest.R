@@ -102,14 +102,19 @@ train <- full[1:nrow(train),]
 test <- full[(nrow(train)+1):nrow(full),]
 
 #create train2 and test2 with only included variables from train and test (myvars)
-myvars <- c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF","SalePrice")
+myvars <- c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF","SalePrice")
 train2 <- train[myvars]
-test2 <- test[c("Id","MSSubClass","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF")]
+test2 <- test[c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF")]
 
+
+#code for timing the random forest algorithm for efficiency purposes
+ptm <- proc.time()
 
 #Run the random forest algorithm
-rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + LotFrontage + Street + LandContourDummy + LandContour  + LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSF, data=train2)
+rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + NeighborhoodDummy + LotFrontage + Street + LandContourDummy + LandContour  + LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSF, data=train2)
 
+#stop the timer
+proc.time() - ptm
 
 #get importance
 importance <- importance(rf_model)
@@ -135,4 +140,4 @@ prediction <- predict(rf_model, test2)
 solution <- data.frame(Id = test2$Id, SalePrice = prediction)
 
 # Write the solution to file
-write.csv(solution, file = 'rf_Solution.csv', row.names = F)
+write.csv(solution, file = 'rf_Solution3.csv', row.names = F)
