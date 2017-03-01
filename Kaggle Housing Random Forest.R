@@ -8,7 +8,7 @@ library(ggthemes)
 library(plotly)
 
 #set working directory
-setwd('/users/thesmithfamily/desktop/coursera/ames')
+setwd('/users/.../ames')
 
 #read in data and create full dataset
 train <- read.csv("train.csv")
@@ -46,7 +46,7 @@ full$BldgTypeDummy <- ifelse(BldgType == "1Fam", 1, 0)
 #RoofStyle - dummy for GableAndHip/NotGableAndHip
 full$RoofStyleDummy <- ifelse(RoofStyle == "Gable", 1, full$RoofStyleDummy <- ifelse(RoofStyle == "Hip", 1, 0))
 
-#MasVnrArea (23 missing) - include: possibly 0 for missing?
+#MasVnrArea (23 missing) - 0 for missing
 full[c("MasVnrArea")][is.na(full[c("MasVnrArea")])] <- 0
 
 #ExterQual - dummy for ExAndGd/NotExAndGd
@@ -58,13 +58,13 @@ full$ExterCondDummy <- ifelse(ExterCond == "Ex", 1, full$ExterCondDummy <- ifels
 #Foundation - dummy for PConc/NotPConc
 full$FoundationDummy <- ifelse(Foundation == "PConc", 1, 0)
 
-#BsmtFinSF1 (1 missing) - include
+#BsmtFinSF1 (1 missing) - 0 for missing
 full[c("BsmtFinSF1")][is.na(full[c("BsmtFinSF1")])] <- 0
 
-#BsmtFinSF2 (1 missing)
+#BsmtFinSF2 (1 missing) - 0 for missing
 full[c("BsmtFinSF2")][is.na(full[c("BsmtFinSF2")])] <- 0
 
-#BsmtUnfSF (1 missing) - include
+#BsmtUnfSF (1 missing) - 0 for missing
 full[c("BsmtUnfSF")][is.na(full[c("BsmtUnfSF")])] <- 0
 
 #HeatingQC - dummy for ExAndGd/Not
@@ -102,16 +102,34 @@ train <- full[1:nrow(train),]
 test <- full[(nrow(train)+1):nrow(full),]
 
 #create train2 and test2 with only included variables from train and test (myvars)
-myvars <- c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF","SalePrice")
+myvars <- c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy",
+            "LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond",
+            "YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy",
+            "ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy",
+            "HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath",
+            "BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive",
+            "WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF","SalePrice")
 train2 <- train[myvars]
-test2 <- test[c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy","LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond","YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy","ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy","HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive","WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF")]
+test2 <- test[c("Id","MSSubClass","NeighborhoodDummy","LotFrontage","Street","LandContourDummy","LandContour","LandSlopeDummy",
+                "LandSlope","Condition1Dummy","Condition1","BldgTypeDummy","BldgType","HouseStyle","OverallQual","OverallCond",
+                "YearBuilt","YearRemodAdd","RoofStyleDummy","RoofStyle","MasVnrArea","ExterQualDummy","ExterQual","ExterCondDummy",
+                "ExterCond","FoundationDummy","Foundation","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","HeatingQCDummy",
+                "HeatingQC","CentralAir","X1stFlrSF","X2ndFlrSF","GrLivArea","BsmtFullBathDummy","BsmtFullBath","FullBath","HalfBath",
+                "BedroomAbvGr","KitchenAbvGr","KitchenQualDummy","KitchenQual","TotRmsAbvGrd","Fireplaces","PavedDriveDummy","PavedDrive",
+                "WoodDeckSF","OpenPorchSF","SaleConditionDummy","SaleCondition","TotalSF")]
 
 
 #code for timing the random forest algorithm for efficiency purposes
 ptm <- proc.time()
 
 #Run the random forest algorithm
-rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + NeighborhoodDummy + LotFrontage + Street + LandContourDummy + LandContour  + LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSF, data=train2)
+rf_model <- randomForest(factor(SalePrice) ~ MSSubClass + NeighborhoodDummy + LotFrontage + Street + LandContourDummy + LandContour + 
+                         LandSlopeDummy + LandSlope + Condition1Dummy + Condition1 + BldgTypeDummy + BldgType + HouseStyle + OverallQual + 
+                         OverallCond + YearBuilt + YearRemodAdd + RoofStyleDummy + RoofStyle + MasVnrArea + ExterQualDummy + ExterQual + 
+                         ExterCondDummy + ExterCond + FoundationDummy + Foundation + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + TotalBsmtSF + 
+                         HeatingQCDummy + HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + BsmtFullBathDummy + BsmtFullBath + 
+                         FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + KitchenQualDummy + KitchenQual + TotRmsAbvGrd + Fireplaces + 
+                         PavedDriveDummy + PavedDrive + WoodDeckSF + OpenPorchSF + SaleConditionDummy + SaleCondition + TotalSF, data=train2)
 
 #stop the timer
 proc.time() - ptm
