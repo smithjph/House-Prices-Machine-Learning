@@ -11,10 +11,10 @@ library(ggplot2)
 
 
 #set working directory
-setwd('/users/thesmithfamily/desktop/coursera/ames')
+setwd('/users/.../ames')
 
 #define submission file for later
-SUBMISSION = "/users/thesmithfamily/desktop/coursera/ames/sample_submission.csv"
+SUBMISSION = "/users/.../ames/sample_submission.csv"
 
 #load data
 train <- read.csv("train.csv")
