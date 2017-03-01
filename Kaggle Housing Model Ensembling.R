@@ -5,7 +5,7 @@ library(readr)
 
 
 #set working directory
-setwd('/users/thesmithfamily/desktop/coursera/ames')
+setwd('/users/.../ames')
 
 
 
