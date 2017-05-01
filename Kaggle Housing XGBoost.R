@@ -11,10 +11,10 @@ library(ggplot2)
 
 
 #set working directory
-setwd('/users/.../ames')
+setwd('/users/thesmithfamily/desktop/kaggle/ames')
 
 #define submission file for later
-SUBMISSION = "/users/.../ames/sample_submission.csv"
+SUBMISSION = "/users/thesmithfamily/desktop/kaggle/ames/sample_submission.csv"
 
 #load data
 train <- read.csv("train.csv")
@@ -26,9 +26,9 @@ train_test = bind_rows(train, test)
 
 
 #remove houses with more than 4000 square feet as recommended by the dataset creator, https://ww2.amstat.org/publications/jse/v19n3/decock.pdf
-train_test <- train_test[which(train_test$GrLivArea < 4000),]
-train <- train[which(train$GrLivArea < 4000),]
-test <- test[which(test$GrLivArea < 4000),]
+#train_test <- train_test[which(train_test$GrLivArea < 4000),]
+#train <- train[which(train$GrLivArea < 4000),]
+#test <- test[which(test$GrLivArea < 4000),]
 
 
 #set number of rows in training set
@@ -384,6 +384,63 @@ test_x = as.data.table(to_impute)
 
 
 
+to_impute <- as.data.frame(train_x)
+impute <- to_impute[c("MSZoning","Exterior1st","Exterior2nd","BsmtFinSF1",
+                      "BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","BsmtFullBath","BsmtHalfBath",
+                      "KitchenQual","Functional","GarageCars","GarageArea","SaleType","TotalSF",
+                      "GarageFinish","BsmtQual","GarageCond","GarageQual","GarageYrBlt",
+                      "GarageType","LotFrontage","NumBath","GarageAge","MasVnrType")]
+
+
+#specify package complete is in to avoid confusion with tidyr
+imputed <- mice::complete(mice(impute,m=5))
+
+
+to_impute$MSZoning=imputed$MSZoning
+to_impute$Utilities=imputed$Utilities
+to_impute$Exterior1st=imputed$Exterior1st
+to_impute$Exterior2nd=imputed$Exterior2nd
+to_impute$BsmtFinSF1=imputed$BsmtFinSF1
+to_impute$BsmtFinSF2=imputed$BsmtFinSF2
+to_impute$BsmtUnfSF=imputed$BsmtUnfSF
+to_impute$TotalBsmtSF=imputed$TotalBsmtSF
+to_impute$BsmtHalfBath=imputed$BsmtHalfBath
+to_impute$BsmtFullBath=imputed$BsmtFullBath
+to_impute$KitchenQual=imputed$KitchenQual
+to_impute$Functional=imputed$Functional
+to_impute$GarageCars=imputed$GarageCars
+to_impute$GarageArea=imputed$GarageArea
+to_impute$GarageArea2=imputed$GarageArea2
+to_impute$GarageArea3=imputed$GarageArea3
+to_impute$SaleType=imputed$SaleType
+to_impute$TotalSF=imputed$TotalSF
+to_impute$TotalSF2=imputed$TotalSF2
+to_impute$TotalSF3=imputed$TotalSF3
+to_impute$TotalSFsqrt=imputed$TotalSFsqrt
+to_impute$GarageFinish=imputed$GarageFinish
+to_impute$BsmtQual=imputed$BsmtQual
+to_impute$GarageCond=imputed$GarageCond
+to_impute$GarageQual=imputed$GarageQual
+to_impute$GarageYrBlt=imputed$GarageYrBlt
+to_impute$GarageType=imputed$GarageType
+to_impute$GarageAge=imputed$GarageAge
+to_impute$LotFrontage=imputed$LotFrontage
+to_impute$LotFrontage2=imputed$LotFrontage2
+to_impute$LotFrontage3=imputed$LotFrontage3
+to_impute$LotFrontagesqrt=imputed$LotFrontagesqrt
+to_impute$NumBath=imputed$NumBath
+to_impute$MasVnrType=imputed$MasVnrType
+
+
+train_x = as.data.table(to_impute)
+
+
+
+train_x <- scale(train_x)
+test_x <- scale(test_x)
+
+
+
 #create xgb.DMatrix objects
 dtrain = xgb.DMatrix(as.matrix(train_x), label = y_train, missing = NaN)
 dtest = xgb.DMatrix(as.matrix(test_x), missing = NaN)
@@ -519,5 +576,42 @@ importance_matrix <- xgb.importance(names, model = xgb_1)
 xgb.plot.importance(importance_matrix[1:nrow(importance_matrix),])
 
 
+
+
+
+
+
+
+
+
+
+
+
+# Model ensembling to try to improve accuracy
+
+#model ensembling (xgboost attempt 14, avg1-3, xgb50, random forest solution)
+xgb50 <- read.csv("xgb50_0_23787.csv")
+xgb14 <- read.csv("xgb14_0_12601.csv")
+xgbavg1 <- read.csv("xgbavg_0_12570.csv")
+xgbavg2 <- read.csv("xgbavg2_0_13060.csv")
+xgbavg3 <- read.csv("xgbavg3_0_12781.csv")
+rf_solution <- read.csv("rf_Solution3_0_18823.csv")
+
+
+#store data frames in temporary frame, then average values
+temp <- cbind(xgb50, xgb14, xgb14, xgbavg1, xgbavg1, xgbavg2, xgbavg3, rf_solution)
+xgbavgNew <- sapply(unique(colnames(temp)), function(x) rowMeans(temp[, colnames(temp) == x, drop=FALSE]))
+
+#write the CSV file
+write.csv(xgbavgNew,"xgbavgNew1.csv",row.names = FALSE)
+
+
+#plot the final predictions
+xgbavgNewPlot <- read.csv("xgbavgNew1.csv")
+y_pred_dfNew <- data.frame(log(xgbavgNewPlot$SalePrice))
+names(y_pred_dfNew)[names(y_pred_dfNew) == "log.xgbavgNewPlot.SalePrice."] <- "y_train"
+
+combinedNew <- rbind(y_train_df, y_pred_dfNew)
+plot.ts(combinedNew$y_train, main = "xgbavgNew w/out 51-53, xgbavg1 twice, xgb14 twice, rf_solution")
 
 
